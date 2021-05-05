@@ -21,24 +21,22 @@ type extractedJob struct {
 var baseURL string = "https://kr.indeed.com/jobs?q=python&limit=50"
 
 func main() {
+	var jobs []extractedJob
 	totalPages := getPages()
 
 	for i := 0; i < totalPages; i++ {
-		getPage(i)
+		extractedJob := getPage(i)
+		jobs = append(jobs, extractedJob...)
 	}
+
+	fmt.Println(jobs)
 }
 
-func getPage(page int) {
+func getPage(page int) []extractedJob {
+	var jobs []extractedJob
 	pageURL := baseURL + "&start=" + strconv.Itoa(page*50)
 	fmt.Println("Requesting", pageURL)
 	res, err := http.Get(pageURL)
-	checkErr(err)
-	checkCode(res)
-}
-
-func getPages() int {
-	pages := 0
-	res, err := http.Get(baseURL)
 	checkErr(err)
 	checkCode(res)
 
@@ -51,13 +49,10 @@ func getPages() int {
 
 	searchCards.Each(func(i int, card *goquery.Selection) {
 		job := extractJob(card)
+		jobs = append(jobs, job)
 	})
 
-	doc.Find(".pagination").Each(func(i int, s *goquery.Selection) {
-		pages = s.Find("a").Length()
-	})
-
-	return pages
+	return jobs
 }
 
 func extractJob(card *goquery.Selection) extractedJob {
@@ -73,7 +68,24 @@ func extractJob(card *goquery.Selection) extractedJob {
 		salary:   salary,
 		summary:  summary,
 	}
-	fmt.Println(id, title, location, salary, summary)
+}
+
+func getPages() int {
+	pages := 0
+	res, err := http.Get(baseURL)
+	checkErr(err)
+	checkCode(res)
+
+	defer res.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	checkErr(err)
+
+	doc.Find(".pagination").Each(func(i int, s *goquery.Selection) {
+		pages = s.Find("a").Length()
+	})
+
+	return pages
 }
 
 func checkErr(err error) {
