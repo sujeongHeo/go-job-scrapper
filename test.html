@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+
+    <title>브라우저 상단 탭에서 보여지는 제목</title>
+
+  </head>
+
+  <body>
+
+    <h1>HTML 기본 템플릿</h1>
+
+    <p>안녕! 친구야 ~ 정말 반가워 ~</p>
+
+  </body>
+
+</html>
+<script>
+
+let a = document.querySelectorAll("*")[Symbol.iterator]();
+console.log((a.next()));
+console.log((a.next()));
+console.log((a.next()));
+console.log((a.next()));
+console.log((a.next()));
+
+
+const map = (f, iter) => {
+    let res = [];
+    for (const a of iter){
+        res.push(f(a));
+    }
+    return res;
+};
+
+console.log(map(el => el.nodeName, document.querySelectorAll('*')));
+
+function *gen() {
+    yield 2;
+    yield 3;
+    yield 4;
+
+}
+
+console.log(map(a => a * a, gen()))
+
+let m = new Map();
+m.set('a', 10);
+m.set('b', 20);
+// map(([k , a]) =>[k ,a * 2] , mconsole);
+console.log(new Map(map(([k ,a]) => [k, a * 2], m)));
+
+</script>

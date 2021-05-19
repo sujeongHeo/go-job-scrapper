@@ -25,8 +25,10 @@ func main() {
 	totalPages := getPages()
 
 	for i := 0; i < totalPages; i++ {
-		extractedJob := getPage(i)
-		jobs = append(jobs, extractedJob...)
+		extractedJobs := getPage(i)
+		// extractedJob := getPage(i)
+		jobs = append(jobs, extractedJobs...)
+		getPage(i)
 	}
 
 	fmt.Println(jobs)
@@ -51,8 +53,14 @@ func getPage(page int) []extractedJob {
 		job := extractJob(card)
 		jobs = append(jobs, job)
 	})
-
 	return jobs
+}
+
+func extractJob1(card *goquery.Selection) {
+	id, _ := card.Attr("data-jk")
+	title := cleanString(card.Find(".title>a").Text())
+	location := cleanString(card.Find(".sjcl").Text())
+	fmt.Println(id, title, location)
 }
 
 func extractJob(card *goquery.Selection) extractedJob {
@@ -61,6 +69,9 @@ func extractJob(card *goquery.Selection) extractedJob {
 	location := cleanString(card.Find(".sjcl").Text())
 	salary := cleanString(card.Find(".salaryText").Text())
 	summary := cleanString(card.Find(".summary").Text())
+	fmt.Println(id, title, location, salary, summary)
+	// job := extractJob(card)
+	// jobs = append(jobs, job)
 	return extractedJob{
 		id:       id,
 		title:    title,
@@ -68,6 +79,10 @@ func extractJob(card *goquery.Selection) extractedJob {
 		salary:   salary,
 		summary:  summary,
 	}
+}
+
+func cleanString(str string) string {
+	return strings.Join(strings.Fields(strings.TrimSpace(str)), " ")
 }
 
 func getPages() int {
@@ -98,8 +113,4 @@ func checkCode(res *http.Response) {
 	if res.StatusCode != 200 {
 		log.Fatalln("Request failed with Status: ", res.StatusCode)
 	}
-}
-
-func cleanString(str string) string {
-	return strings.Join(strings.Fields(strings.TrimSpace(str)), " ")
 }
