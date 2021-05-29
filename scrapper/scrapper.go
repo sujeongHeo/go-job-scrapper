@@ -25,7 +25,7 @@ func Scrape(term string) {
 	var baseURL string = "https://kr.indeed.com/jobs?q=" + term + "&limit=50"
 	var jobs []extractedJob
 	c := make(chan []extractedJob)
-	totalPages := getPages(baseURL)
+	totalPages := GetPages(baseURL)
 
 	for i := 0; i < totalPages; i++ {
 		go getPage(i, baseURL, c)
@@ -93,7 +93,7 @@ func CleanString(str string) string {
 	return strings.Join(strings.Fields(strings.TrimSpace(str)), " ")
 }
 
-func getPages(url string) int {
+func GetPages(url string) int {
 	pages := 0
 	res, err := http.Get(url)
 	checkErr(err)
@@ -107,6 +107,8 @@ func getPages(url string) int {
 	doc.Find(".pagination").Each(func(i int, s *goquery.Selection) {
 		pages = s.Find("a").Length()
 	})
+
+	fmt.Println("pages ???", pages)
 
 	return pages
 }
@@ -122,18 +124,23 @@ func writeJobs(jobs []extractedJob) {
 	wErr := w.Write(headers)
 	checkErr(wErr)
 
-	kk := make(chan []string)
+	// kk := make(chan []string)
 
 	for _, job := range jobs {
-		go writeInCsv(job, kk)
+		jobSlice := []string{"https://kr.indeed.com/viewjob?jk=" + job.id, job.title, job.location, job.salary, job.summary}
+		jwErr := w.Write(jobSlice)
+		checkErr(jwErr)
 	}
 
-	jobSlice := <-kk
-	jwErr := w.Write(jobSlice)
-	checkErr(jwErr)
+	// jobSlice := <-kk
+	// fmt.Println("kk : ", kk)
+	// fmt.Println("jobSlice!!!!!!!!!!", jobSlice)
+	// jwErr := w.Write(jobSlice)
+	// checkErr(jwErr)
 }
 
-func writeInCsv(job extractedJob, kk chan<- []string) {
+func WriteInCsv(job extractedJob, kk chan<- []string) {
+	fmt.Println("어떻게 나와?")
 	kk <- []string{"https://kr.indeed.com/viewjob?jk=" + job.id, job.title, job.location, job.salary, job.summary}
 
 }

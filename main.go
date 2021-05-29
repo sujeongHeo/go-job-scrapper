@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -17,6 +18,7 @@ func handleHome(c echo.Context) error {
 func handleScrape(c echo.Context) error {
 	defer os.Remove(fileName)
 	term := strings.ToLower(scrapper.CleanString(c.FormValue("term")))
+	fmt.Println(term)
 	scrapper.Scrape(term)
 	return c.Attachment(fileName, fileName)
 }
